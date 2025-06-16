@@ -11,7 +11,7 @@ type Approval @entity(immutable: true) {
 type Deposit @entity(immutable: true) {
   id: Bytes!
   sender: Bytes! # address
-  owner: Bytes! # address
+  owner: Owner! # address
   assets: BigInt! # uint256
   shares: BigInt! # uint256
   blockNumber: BigInt!
@@ -30,8 +30,8 @@ type OwnershipTransferred @entity(immutable: true) {
 
 type Transfer @entity(immutable: true) {
   id: Bytes!
-  from: Bytes! # address
-  to: Bytes! # address
+  from: Owner! # address
+  to: Owner! # address
   value: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -42,7 +42,7 @@ type Withdraw @entity(immutable: true) {
   id: Bytes!
   sender: Bytes! # address
   receiver: Bytes! # address
-  owner: Bytes! # address
+  owner: Owner! # address
   assets: BigInt! # uint256
   shares: BigInt! # uint256
   blockNumber: BigInt!
@@ -64,4 +64,13 @@ type YieldRateUpdated @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+}
+
+type Owner @entity(immutable: false) {
+  id: Bytes! # address
+  balance: BigInt!
+  deposits: [Deposit!]! @derivedFrom(field: "owner")
+  withdraws: [Withdraw!]! @derivedFrom(field: "owner")
+  transfersIn: [Transfer!]! @derivedFrom(field: "to")
+  transfersOut: [Transfer!]! @derivedFrom(field: "from")
 }
