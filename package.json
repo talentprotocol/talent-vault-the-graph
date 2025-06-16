@@ -4,6 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
+    "gen-build": "graph codegen && graph build",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ talent-vault",
     "create-local": "graph create --node http://localhost:8020/ talent-vault",
     "remove-local": "graph remove --node http://localhost:8020/ talent-vault",
@@ -14,5 +15,7 @@
     "@graphprotocol/graph-cli": "0.97.1",
     "@graphprotocol/graph-ts": "0.37.0"
   },
-  "devDependencies": { "matchstick-as": "0.6.0" }
+  "devDependencies": {
+    "matchstick-as": "0.6.0"
+  }
 }

@@ -16,29 +16,17 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - Approval
         - Deposit
-        - OwnershipTransferred
         - Transfer
         - Withdraw
-        - YieldAccrualDeadlineUpdated
-        - YieldRateUpdated
       abis:
         - name: TalentVault
           file: ./abis/TalentVault.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
         - event: Deposit(indexed address,indexed address,uint256,uint256)
           handler: handleDeposit
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
         - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleWithdraw
-        - event: YieldAccrualDeadlineUpdated(uint256)
-          handler: handleYieldAccrualDeadlineUpdated
-        - event: YieldRateUpdated(uint256)
-          handler: handleYieldRateUpdated
       file: ./src/talent-vault.ts
