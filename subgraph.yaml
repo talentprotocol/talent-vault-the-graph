@@ -25,8 +25,6 @@ dataSources:
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256,uint256)
           handler: handleDeposit
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
         - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleWithdraw
       file: ./src/talent-vault.ts
