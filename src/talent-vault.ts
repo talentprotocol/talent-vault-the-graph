@@ -3,8 +3,29 @@ import {
   Transfer as TransferEvent,
   Withdraw as WithdrawEvent,
 } from "../generated/TalentVault/TalentVault";
-import { Deposit, Transfer, Withdraw, Owner } from "../generated/schema";
+import {
+  Deposit,
+  Transfer,
+  Withdraw,
+  Owner,
+  GlobalState,
+} from "../generated/schema";
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+
+const GLOBAL_STATE_ID = "global-state";
+
+function getOrCreateGlobalState(): GlobalState {
+  let state = GlobalState.load(GLOBAL_STATE_ID);
+  if (!state) {
+    state = new GlobalState(GLOBAL_STATE_ID);
+    state.totalDeposits = BigInt.fromI32(0);
+    state.totalWithdraws = BigInt.fromI32(0);
+    state.activeParticipants = BigInt.fromI32(0);
+    state.totalBalance = BigInt.fromI32(0);
+    state.save();
+  }
+  return state;
+}
 
 function getOrCreateOwner(address: Bytes): Owner {
   let owner = Owner.load(address);
@@ -32,8 +53,23 @@ export function handleDeposit(event: DepositEvent): void {
 
   entity.save();
 
+  let oldBalance = owner.balance;
   owner.balance = owner.balance.plus(event.params.shares);
   owner.save();
+
+  // Update global state
+  let globalState = getOrCreateGlobalState();
+  globalState.totalDeposits = globalState.totalDeposits.plus(BigInt.fromI32(1));
+  globalState.totalBalance = globalState.totalBalance.plus(event.params.shares);
+  if (
+    oldBalance.equals(BigInt.fromI32(0)) &&
+    event.params.shares.gt(BigInt.fromI32(0))
+  ) {
+    globalState.activeParticipants = globalState.activeParticipants.plus(
+      BigInt.fromI32(1)
+    );
+  }
+  globalState.save();
 }
 
 export function handleTransfer(event: TransferEvent): void {
@@ -76,6 +112,26 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   entity.save();
 
+  let oldBalance = owner.balance;
   owner.balance = owner.balance.minus(event.params.shares);
   owner.save();
+
+  // Update global state
+  let globalState = getOrCreateGlobalState();
+  globalState.totalWithdraws = globalState.totalWithdraws.plus(
+    BigInt.fromI32(1)
+  );
+  globalState.totalBalance = globalState.totalBalance.minus(
+    event.params.shares
+  );
+  if (
+    oldBalance.gt(BigInt.fromI32(0)) &&
+    owner.balance.equals(BigInt.fromI32(0)) &&
+    event.params.shares.gt(BigInt.fromI32(0))
+  ) {
+    globalState.activeParticipants = globalState.activeParticipants.minus(
+      BigInt.fromI32(1)
+    );
+  }
+  globalState.save();
 }
